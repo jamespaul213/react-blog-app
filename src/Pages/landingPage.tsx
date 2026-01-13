@@ -3,7 +3,7 @@ import CreateBlog from "../Pages/createBlogPage";
 import EditBlog from "./editBlogPage";
 import DeleteBlog from "./deleteBlogPage";
 import LogIn from "./logInPage";
-import Register from "./registerPage";
+import RegistrationForm from "./registerPage";
 
 const LandingPage: React.FC = () => {
     return(
@@ -13,7 +13,7 @@ const LandingPage: React.FC = () => {
         <EditBlog />
         <DeleteBlog />
         <LogIn />
-        <Register />
+        <RegistrationForm />
         </div>
     )
 };
