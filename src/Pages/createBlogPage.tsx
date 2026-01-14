@@ -76,7 +76,7 @@ const CreateBlog: React.FC = () => {
 
     
     return(
-        <form onSubmit={handleSubmit}>
+<form onSubmit={handleSubmit}>
   <input
     type="text"
     name="title"

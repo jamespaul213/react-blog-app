@@ -1,5 +1,7 @@
 import React, { useState }  from "react";
 import { supabase } from "../Api/supaBaseClient";
+import { useNavigate } from "react-router-dom";
+import { Form, Button, Container, Row, Col, Alert } from "react-bootstrap"
 
 const LogIn: React.FC = () => {
 
@@ -7,7 +9,7 @@ const LogIn: React.FC = () => {
         email: "",
         password: "",
       })
-      
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -32,34 +34,82 @@ const LogIn: React.FC = () => {
     } else {
       alert("Log In successful!");
       console.log(data);
+      navigate("/landingpage")
     }
 
     }
     return(
-        <div>
-         <form onSubmit={handleLogin}>
-      <input
-        type="email"
-        name="email"
-        placeholder="Email"
-        value={formData.email}
-        onChange={handleChange}
-        required
-      />
-      <input
-        type="password"
-        name="password"
-        placeholder="Password"
-        value={formData.password}
-        onChange={handleChange}
-        required
-      />
-      <button type="submit" disabled={loading}>
-        {loading ? "Registering..." : "LogIn"}
-      </button>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-    </form>
-        </div>
+    //     <div>
+    //      <form onSubmit={handleLogin}>
+    //   <input
+    //     type="email"
+    //     name="email"
+    //     placeholder="Email"
+    //     value={formData.email}
+    //     onChange={handleChange}
+    //     required
+    //   />
+    //   <input
+    //     type="password"
+    //     name="password"
+    //     placeholder="Password"
+    //     value={formData.password}
+    //     onChange={handleChange}
+    //     required
+    //   />
+    //   <button type="submit" disabled={loading}>
+    //     {loading ? "Registering..." : "LogIn"}
+    //   </button>
+    //   {error && <p style={{ color: "red" }}>{error}</p>}
+    // </form>
+    //     </div>
+    <Container className="mt-5">
+      <Row className="justify-content-md-center">
+        <Col md={6}>
+          <h2 className="mb-4">Log In</h2>
+          <Form onSubmit={handleLogin}>
+            
+            <Form.Group className="mb-3" controlId="formEmail">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                name="email"
+                placeholder="Enter email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+            </Form.Group>
+    
+        
+            <Form.Group className="mb-3" controlId="formPassword">
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                type="password"
+                name="password"
+                placeholder="Enter password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+            </Form.Group>
+    
+    
+          
+            <Button variant="primary" type="submit" disabled={loading} className="w-100">
+              {loading ? "Logging In..." : "Log In"}
+            </Button>
+    
+            {/* Error Message */}
+            {error && (
+              <Alert variant="danger" className="mt-3">
+                {error}
+              </Alert>
+            )}
+          </Form>
+        </Col>
+      </Row>
+    </Container>
     )
 
 }

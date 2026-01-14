@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { supabase } from "../Api/supaBaseClient";
 import { RegistrationData } from "../Types/regitrationData";
+import { Form, Button, Container, Row, Col, Alert } from "react-bootstrap"
+import { useNavigate } from "react-router-dom";
+
 
 
 const RegistrationForm: React.FC = () => {
@@ -11,7 +14,7 @@ const RegistrationForm: React.FC = () => {
         password: "",
         confirmPassword: ""
     });
-
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -43,49 +46,84 @@ const RegistrationForm: React.FC = () => {
     } else {
       alert("Registration successful! Check your email for confirmation.");
       console.log(data);
+      navigate("/login")
     }
   };
     
 
     return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="email"
-        name="email"
-        placeholder="Email"
-        value={formData.email}
-        onChange={handleChange}
-        required
-      />
-      <input
-        type="password"
-        name="password"
-        placeholder="Password"
-        value={formData.password}
-        onChange={handleChange}
-        required
-      />
-        <input
-        type="text"
-        name="name"
-        placeholder="Name"
-        value={formData.name}
-        onChange={handleChange}
-        required
-      />
-        <input
-        type="number"
-        name="phone"
-        placeholder="Phone Number"
-        value={formData.phone}
-        onChange={handleChange}
-        required
-      />
-      <button type="submit" disabled={loading}>
-        {loading ? "Registering..." : "Register"}
-      </button>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-    </form>
+    <Container className="mt-5">
+  <Row className="justify-content-md-center">
+    <Col md={6}>
+      <h2 className="mb-4">Register</h2>
+      <Form onSubmit={handleSubmit}>
+        
+        <Form.Group className="mb-3" controlId="formEmail">
+          <Form.Label>Email</Form.Label>
+          <Form.Control
+            type="email"
+            name="email"
+            placeholder="Enter email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
+
+    
+        <Form.Group className="mb-3" controlId="formPassword">
+          <Form.Label>Password</Form.Label>
+          <Form.Control
+            type="password"
+            name="password"
+            placeholder="Enter password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
+
+       
+        <Form.Group className="mb-3" controlId="formName">
+          <Form.Label>Name</Form.Label>
+          <Form.Control
+            type="text"
+            name="name"
+            placeholder="Enter your name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
+
+      
+        <Form.Group className="mb-3" controlId="formPhone">
+          <Form.Label>Phone Number</Form.Label>
+          <Form.Control
+            type="number"
+            name="phone"
+            placeholder="Enter phone number"
+            value={formData.phone}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
+
+      
+        <Button variant="primary" type="submit" disabled={loading} className="w-100">
+          {loading ? "Registering..." : "Register"}
+        </Button>
+
+    
+        {error && (
+          <Alert variant="danger" className="mt-3">
+            {error}
+          </Alert>
+        )}
+      </Form>
+    </Col>
+  </Row>
+</Container>
   );
 
 }
