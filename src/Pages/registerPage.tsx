@@ -1,13 +1,7 @@
 import React, { useState } from "react";
 import { supabase } from "../Api/supaBaseClient";
+import { RegistrationData } from "../Types/regitrationData";
 
-export interface RegistrationData {
-    name: string;
-    phone: string;
-    email: string;
-    password: string;
-    confirmPassword?: string;
-}
 
 const RegistrationForm: React.FC = () => {
     const [formData, setFormData] = useState<RegistrationData>({
