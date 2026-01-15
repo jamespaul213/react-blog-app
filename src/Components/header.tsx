@@ -11,17 +11,6 @@ const Header: React.FC = () => {
 
     const user = useSelector((state: any) => state.auth.user);
 
-    // useEffect(() => {
-   
-    //   supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
-
-    //   const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-    //     setUser(session?.user || null);
-    //   });
-
-    //   return () => listener.subscription.unsubscribe();
-    // }, []);
-
   const handleLogout = async () => {
     await supabase.auth.signOut();
      dispatch({ type: "auth/clearUser" });

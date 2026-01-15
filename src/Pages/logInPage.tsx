@@ -30,7 +30,7 @@ const LogIn: React.FC = () => {
      setLoading(false);
 
       if (error) {
-      setError(error.message);
+      setError(error.message);      
     } else {
       alert("Log In successful!");
       console.log(data);
@@ -39,30 +39,6 @@ const LogIn: React.FC = () => {
 
     }
     return(
-    //     <div>
-    //      <form onSubmit={handleLogin}>
-    //   <input
-    //     type="email"
-    //     name="email"
-    //     placeholder="Email"
-    //     value={formData.email}
-    //     onChange={handleChange}
-    //     required
-    //   />
-    //   <input
-    //     type="password"
-    //     name="password"
-    //     placeholder="Password"
-    //     value={formData.password}
-    //     onChange={handleChange}
-    //     required
-    //   />
-    //   <button type="submit" disabled={loading}>
-    //     {loading ? "Registering..." : "LogIn"}
-    //   </button>
-    //   {error && <p style={{ color: "red" }}>{error}</p>}
-    // </form>
-    //     </div>
     <Container className="mt-5">
       <Row className="justify-content-md-center">
         <Col md={6}>
@@ -100,7 +76,6 @@ const LogIn: React.FC = () => {
               {loading ? "Logging In..." : "Log In"}
             </Button>
     
-            {/* Error Message */}
             {error && (
               <Alert variant="danger" className="mt-3">
                 {error}

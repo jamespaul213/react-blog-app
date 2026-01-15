@@ -27,7 +27,6 @@ const RegistrationForm: React.FC = () => {
     setLoading(true);
     setError(null);
 
-    // Register with Supabase
     const { data, error } = await supabase.auth.signUp({
       email: formData.email,
       password: formData.password,
@@ -38,6 +37,7 @@ const RegistrationForm: React.FC = () => {
       },
     },
     });
+    await supabase.auth.signOut();
 
     setLoading(false);
 
@@ -51,8 +51,8 @@ const RegistrationForm: React.FC = () => {
   };
     
 
-    return (
-    <Container className="mt-5">
+  return (
+  <Container className="mt-5">
   <Row className="justify-content-md-center">
     <Col md={6}>
       <h2 className="mb-4">Register</h2>
