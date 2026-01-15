@@ -34,7 +34,7 @@ const LogIn: React.FC = () => {
     } else {
       alert("Log In successful!");
       console.log(data);
-      navigate("/landingpage")
+      navigate("/")
     }
 
     }

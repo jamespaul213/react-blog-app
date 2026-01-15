@@ -1,15 +1,38 @@
-import React from "react";
-import LogIn from "../Pages/logInPage";
-import RegistrationForm from "../Pages/registerPage";
-import { Navigate, useNavigate } from "react-router-dom";
+import React,{ useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "../Api/supaBaseClient";
+
 
 const Header: React.FC = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    // const [user, setUser] = useState<any>(null);
+
+    const user = useSelector((state: any) => state.auth.user);
+
+    // useEffect(() => {
+   
+    //   supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+
+    //   const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+    //     setUser(session?.user || null);
+    //   });
+
+    //   return () => listener.subscription.unsubscribe();
+    // }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+     dispatch({ type: "auth/clearUser" });
+    navigate("/login");
+  };
+
   return (
     <div>
       <nav className="navbar navbar-expand-lg bg-body-tertiary">
         <div className="container-fluid">
-          <a className="navbar-brand" href="#">Navbar</a>
+          <a className="navbar-brand" href="/"  onClick={() => navigate("/")}>Home</a>
           <button
             className="navbar-toggler"
             type="button"
@@ -21,10 +44,21 @@ const Header: React.FC = () => {
           >
             <span className="navbar-toggler-icon"></span>
           </button>
-          <div className="collapse navbar-collapse" id="navbarSupportedContent">
-               <button  type="button" className="btn btn-primary" onClick={() => navigate(`/login`)}>Log In</button>
-              <button  type="button" className="btn btn-primary" onClick={() => navigate(`/register`)}>Register</button>
-          </div>
+        <div className="collapse navbar-collapse d-flex justify-content-end" id="navbarSupportedContent">
+          {!user && (
+            <>
+              <button className="btn btn-primary me-2" onClick={() => navigate("/login")}>Login</button>
+              <button className="btn btn-primary" onClick={() => navigate("/register")}>Register</button>
+            </>
+          )}
+
+          {user && (
+            <>
+              <span className="me-2">Hello, {user.email}</span>
+              <button className="btn btn-danger" onClick={handleLogout}>Logout</button>
+            </>
+          )}
+        </div>
         </div>
       </nav>
     </div>

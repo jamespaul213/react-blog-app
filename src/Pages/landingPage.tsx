@@ -1,86 +1,84 @@
 import React,{useEffect, useState} from "react";
-import CreateBlog from "../Pages/createBlogPage";
-import EditBlog from "./updateBlogPage";
-import DeleteBlog from "./deleteBlogPage";
-import UpdateBlog from "./updateBlogPage";
-import LogIn from "./logInPage";
-import RegistrationForm from "./registerPage";
 import { useNavigate } from "react-router-dom";
 import { Blog } from "../Types/blog";
 import { supabase } from "../Api/supaBaseClient";
-import { Card, Button, Container, Row, Col } from 'react-bootstrap';
-import ViewBlog from "./viewBlogPage";
+import { Button, Container, Row, Col, Pagination } from 'react-bootstrap';
 
 const LandingPage: React.FC = () => {
     const navigate = useNavigate();
     const [blogs, setBlogs] = useState<Blog[]>([]); 
+    const [page, setPage] = useState(1);
+    const pageSize = 3;
+    const [totalBlogs, setTotalBlogs] = useState(0);
     // const [blog, setBlog] = useState<Blog | null>(null);
     const [loading, setLoading] = useState(true);
-    
-    
-    useEffect(() => {
-  const fetchUserBlogs = async () => {
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
+    const hasNextPage = blogs.length === pageSize;
 
-    if (userError) {
-      console.error("Error getting user:", userError);
-      return;
+useEffect(() => {
+  const fetchBlogs = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    let query = supabase
+      .from("blogs")
+      .select("*", { count: "exact" })
+      .order("created_at", { ascending: false })
+      .range(
+        (page - 1) * pageSize,
+        page * pageSize - 1
+      );
+
+    // If user exists, fetch only their blogs
+    if (user) {
+      query = query.eq("author_id", user.id);
     }
 
-    if (!user) return;
-    console.log('FROM LANDING PAGE User', user);
+    const { data, error, count } = await query;
 
-    const { data, error } = await supabase
-      .from("blogs")
-      .select("*")
-      .eq("author_id", user.id) 
-      .order("created_at", { ascending: false });
-
-    if (error) console.error("Error fetching blogs:", error);
-    else setBlogs(data || []);
-     console.log('FROM LANDING PAGE User2', user);
-     console.log('FROM LANDING PAGE Data', data);
+    if (!error){
+    setBlogs(data || []);
+    setTotalBlogs(count || 0);
+    }
   };
 
-  fetchUserBlogs();
-}, []);
+  fetchBlogs();
+}, [page]);
+
 
    return (
   <Container className="mt-5">
+    <div  className="create-button d-flex justify-content-end">
+          <Button
+              variant="primary"
+              onClick={() => navigate(`/create`)}
+            >Create New Blog
+        </Button>
+    </div>
   <Row>
     {blogs.map((blog) => (
       <Col key={blog.id} md={6} lg={4} className="mb-4">
         <div className="card" style={{ width: "18rem" }}>
-        <div className="card-body">
-            <h5 className="card-title">Title:{blog.title}</h5>
+            <h5 className="card-header d-flex justify-content-center">{blog.title}</h5>
+        <div className="d-flex justify-content-center card-body">
             <Button
               variant="primary"
-              className="ms-2"
               onClick={() => navigate(`/view/${blog.id}`)}
             >View Blog
-            </Button>
-
-            <Button
-              variant="primary"
-              onClick={() => navigate(`/update/${blog.id}`)}
-            >
-              Edit
-            </Button>
-            <Button
-              variant="danger"
-              className="ms-2"
-             onClick={() => navigate(`/delete/${blog.id}`)}
-            >
-              Delete
             </Button>
         </div>
         </div>
       </Col>
     ))}
   </Row>
+  {totalBlogs > pageSize && (
+    <Pagination className="justify-content-center mt-4">
+    <Pagination.Prev
+      disabled={page === 1}
+      onClick={() => setPage(page - 1)}
+    />
+    <Pagination.Item active>{page}</Pagination.Item>
+    <Pagination.Next  disabled={!hasNextPage} onClick={() => setPage(page + 1)} />
+  </Pagination>
+  )}
 </Container>
   );
 };

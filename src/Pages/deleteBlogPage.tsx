@@ -18,16 +18,14 @@ const DeleteBlog: React.FC = () => {
             if(error){
                 console.log(error)
             }else{
-                alert("Blog Deleted")
                 navigate("/")
+                 alert("Blog Deleted")
             }
         }
-        deleteBlog();
     }, [id, navigate])
 
     return(
         <div>
-        <h1>Delete Blog</h1>
         </div>
     )
 

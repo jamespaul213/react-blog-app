@@ -2,12 +2,14 @@ import React,{useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../Api/supaBaseClient";
 import { Blog } from "../Types/blog";
+import { Container, Button, Form, Col } from "react-bootstrap";
 
 const UpdateBlog: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [blog, setBlog] = useState<Blog | null>(null);
     const [loading, setLoading] = useState(true);
+    const [originalBlog, setOriginalBlog] = useState<Blog | null>(null); // backup
 
    useEffect(() => {
     const fetchBlog = async () => {
@@ -23,17 +25,13 @@ const UpdateBlog: React.FC = () => {
         console.error(error);
         } else {
         setBlog(data);
+        setOriginalBlog(data);
         }
 
         setLoading(false);
     }
         fetchBlog();
    },[id]);
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const {name, value} = e.target;
-    setBlog((prev) => (prev ? {...prev, [name]:value } : prev));
-   }
 
    const handleUpdate = async(e: React.FormEvent) => {
     e.preventDefault();
@@ -48,31 +46,54 @@ const UpdateBlog: React.FC = () => {
     .eq("id",blog.id);
 
     if(!error){
+        alert("Blog updated!");
         navigate(`/`)
     }
-
-    if (loading) return <p>Loading blog...</p>;
-    if (!blog) return <p>Blog not found</p>;
    };
+   const handleCancel = () =>{
+    setBlog(originalBlog);
+    navigate(`/view/${blog?.id}`)
+   } 
 
 
     return(
-         <form onSubmit={handleUpdate}>
-      <input
-        type="text"
-        name="title"
-        value={blog?.title || ""}
-        onChange={handleChange}
-        required
-      />
-      <textarea
-        name="content"
-        value={blog?.content || ""}
-        onChange={handleChange}
-        required
-      />
-      <button type="submit">Update Blog</button>
-    </form>
+    <Container className="mt-5 card-header d-flex justify-content-center">
+
+    <div className="card" style={{ width: "18rem" }}>
+      <div className="card-body">
+          <input
+            className="form-control mb-2"
+            value={blog?.title || ""}
+            onChange={(e) =>
+              setBlog(prev => prev ? { ...prev, title: e.target.value } : prev)
+            }
+          />
+          <textarea
+            className="form-control"
+            rows={4}
+            value={blog?.content || ""}
+            onChange={(e) =>
+              setBlog(prev => prev ? { ...prev, content: e.target.value } : prev)
+            }
+          />
+          <div className="d-flex justify-content-center mt-2">
+            <button
+              className="btn btn-primary"
+              onClick={handleUpdate}
+            >
+              Save
+            </button>
+            <button
+              className="btn btn-secondary me-2"
+              onClick={handleCancel}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </Container>
     )
 
 }
