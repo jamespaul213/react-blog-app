@@ -10,7 +10,6 @@ import LogIn from './Pages/logInPage';
 import RegistrationForm from './Pages/registerPage';
 import Header from './Components/header';
 import ViewBlog from './Pages/viewBlogPage';
-import { Container } from 'react-bootstrap';
 import { supabase } from './Api/supaBaseClient';
 import { setUser } from './Redux/authSlice'
 
@@ -37,9 +36,9 @@ function App() {
        <Header />
        <div className="container-md">
       <Routes>
-            <Route path="/" element={<LandingPage />} />
+            <Route path="/home" element={<LandingPage />} />
             <Route path="/login" element={<LogIn />} />
-            <Route path="/register" element={<RegistrationForm />} />
+            <Route path="/" element={<RegistrationForm />} />
             <Route path="/create" element={<CreateBlog />} />
             <Route path="/update/:id" element={<UpdateBlog />} />
             <Route path="/delete/:id" element={<DeleteBlog />} />

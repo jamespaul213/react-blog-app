@@ -42,7 +42,7 @@ const ViewBlog: React.FC = () => {
         console.error(error);
       } else {
         alert("Blog Deleted");
-        navigate("/");
+        navigate("/home");
       }
     };
 

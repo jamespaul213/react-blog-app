@@ -12,10 +12,6 @@ const CreateBlog: React.FC = () => {
       author_id: "",
     });
 
-    const [formData, setFormData] = useState({
-        title: "",
-        content: "",
-    })
     const [loading, setLoading] = useState(false);
 
 
@@ -62,7 +58,7 @@ const CreateBlog: React.FC = () => {
     } else {
         alert("Blog created successfully!");
         setBlog({ title: "", content: "" });
-        navigate("/");
+        navigate("/home");
     }
 
     setLoading(false);

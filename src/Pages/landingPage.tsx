@@ -10,7 +10,6 @@ const LandingPage: React.FC = () => {
     const [page, setPage] = useState(1);
     const pageSize = 3;
     const [totalBlogs, setTotalBlogs] = useState(0);
-    // const [blog, setBlog] = useState<Blog | null>(null);
     const [loading, setLoading] = useState(true);
     const hasNextPage = blogs.length === pageSize;
 
@@ -27,7 +26,7 @@ useEffect(() => {
         page * pageSize - 1
       );
 
-    // If user exists, fetch only their blogs
+
     if (user) {
       query = query.eq("author_id", user.id);
     }

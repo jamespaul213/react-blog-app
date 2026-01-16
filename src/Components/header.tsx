@@ -7,7 +7,6 @@ import { supabase } from "../Api/supaBaseClient";
 const Header: React.FC = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    // const [user, setUser] = useState<any>(null);
 
     const user = useSelector((state: any) => state.auth.user);
 
@@ -21,7 +20,7 @@ const Header: React.FC = () => {
     <div>
       <nav className="navbar navbar-expand-lg bg-body-tertiary">
         <div className="container-fluid">
-          <a className="navbar-brand" href="/"  onClick={() => navigate("/")}>Home</a>
+          <a className="navbar-brand" href="/home"  onClick={() => navigate("/home")}>Home</a>
           <button
             className="navbar-toggler"
             type="button"
@@ -37,7 +36,7 @@ const Header: React.FC = () => {
           {!user && (
             <>
               <button className="btn btn-primary me-2" onClick={() => navigate("/login")}>Login</button>
-              <button className="btn btn-primary" onClick={() => navigate("/register")}>Register</button>
+              <button className="btn btn-primary" onClick={() => navigate("/")}>Register</button>
             </>
           )}
 

@@ -47,7 +47,7 @@ const UpdateBlog: React.FC = () => {
 
     if(!error){
         alert("Blog updated!");
-        navigate(`/`)
+        navigate(`/home`)
     }
    };
    const handleCancel = () =>{

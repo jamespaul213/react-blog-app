@@ -33,8 +33,7 @@ const LogIn: React.FC = () => {
       setError(error.message);      
     } else {
       alert("Log In successful!");
-      console.log(data);
-      navigate("/")
+      navigate("/home")
     }
 
     }

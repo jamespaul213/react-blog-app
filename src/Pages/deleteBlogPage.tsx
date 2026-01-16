@@ -18,7 +18,7 @@ const DeleteBlog: React.FC = () => {
             if(error){
                 console.log(error)
             }else{
-                navigate("/")
+                navigate("/home")
                  alert("Blog Deleted")
             }
         }
