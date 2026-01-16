@@ -8,7 +8,6 @@ const UpdateBlog: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [blog, setBlog] = useState<Blog | null>(null);
-    const [loading, setLoading] = useState(true);
     const [originalBlog, setOriginalBlog] = useState<Blog | null>(null); // backup
 
    useEffect(() => {
@@ -27,8 +26,6 @@ const UpdateBlog: React.FC = () => {
         setBlog(data);
         setOriginalBlog(data);
         }
-
-        setLoading(false);
     }
         fetchBlog();
    },[id]);

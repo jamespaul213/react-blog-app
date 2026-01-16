@@ -10,7 +10,6 @@ const LandingPage: React.FC = () => {
     const [page, setPage] = useState(1);
     const pageSize = 3;
     const [totalBlogs, setTotalBlogs] = useState(0);
-    const [loading, setLoading] = useState(true);
     const hasNextPage = blogs.length === pageSize;
 
 useEffect(() => {

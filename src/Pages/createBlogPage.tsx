@@ -12,7 +12,7 @@ const CreateBlog: React.FC = () => {
       author_id: "",
     });
 
-    const [loading, setLoading] = useState(false);
+ 
 
 
     const handleChange = (
@@ -28,7 +28,6 @@ const CreateBlog: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
 
     const {
         data: { user },
@@ -36,7 +35,6 @@ const CreateBlog: React.FC = () => {
 
     if (!user) {
         alert("You must be logged in");
-        setLoading(false);
         return;
     }
 
@@ -60,8 +58,6 @@ const CreateBlog: React.FC = () => {
         setBlog({ title: "", content: "" });
         navigate("/home");
     }
-
-    setLoading(false);
     };
 
     
