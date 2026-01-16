@@ -2,7 +2,7 @@ import React,{useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../Api/supaBaseClient";
 import { Blog } from "../Types/blog";
-import { Container, Button, Form, Col } from "react-bootstrap";
+import { Container} from "react-bootstrap";
 
 const UpdateBlog: React.FC = () => {
     const { id } = useParams<{ id: string }>();
