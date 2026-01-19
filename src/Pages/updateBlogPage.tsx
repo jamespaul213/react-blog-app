@@ -39,6 +39,7 @@ const UpdateBlog: React.FC = () => {
     .update({
         title: blog.title,
         content: blog.content,
+        image_url: blog.image_url
     })
     .eq("id",blog.id);
 
@@ -57,6 +58,17 @@ const UpdateBlog: React.FC = () => {
     <Container className="mt-5 card-header d-flex justify-content-center">
 
     <div className="card" style={{ width: "18rem" }}>
+       {blog?.image_url && (
+            <img
+              src={blog.image_url}
+              className="card-img-center"
+              style={{
+              height: "200px",
+              objectFit: "fill",
+            }}
+            alt="Placeholder"
+            />
+          )}
       <div className="card-body">
           <input
             className="form-control mb-2"

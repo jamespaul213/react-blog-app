@@ -10,10 +10,11 @@ const CreateBlog: React.FC = () => {
       title: "",
       content: "",
       author_id: "",
+      image_url: null,
     });
 
+    const [imageFile, setImageFile] = useState<File | null>(null);
  
-
 
     const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -26,9 +27,34 @@ const CreateBlog: React.FC = () => {
     }));
     };
 
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    let imageUrl: string | null = null;
+    
+
+    if(imageFile){
+      const fileName = `${Date.now()}-${imageFile.name}`;
+      const {error: uploadError} = await supabase.storage
+      .from("post-images")
+      .upload(fileName, imageFile);
+
+      if(uploadError){
+         console.error(uploadError.message);
+         alert("Failed to upload image");
+         return;
+      }
+
+       const { data } = supabase.storage
+      .from("post-images")
+      .getPublicUrl(fileName);
+
+       imageUrl = data.publicUrl;
+  }
+
+  
+    
     const {
         data: { user },
     } = await supabase.auth.getUser();
@@ -38,12 +64,14 @@ const CreateBlog: React.FC = () => {
         return;
     }
 
+
     console.log("userID",user.id);
 
     const newBlog: Blog = {
         title: blog.title,
         content: blog.content,
         author_id: user.id,
+        image_url: imageUrl,
     };
 
     const { error } = await supabase
@@ -55,7 +83,8 @@ const CreateBlog: React.FC = () => {
         alert(error.message);
     } else {
         alert("Blog created successfully!");
-        setBlog({ title: "", content: "" });
+        setBlog({ title: "", content: "" , image_url: null });
+        setImageFile(null);
         navigate("/home");
     }
     };
@@ -63,7 +92,24 @@ const CreateBlog: React.FC = () => {
     
   return(
     <Container className="mt-5 card-header d-flex justify-content-center">
-      <div className="card" style={{ width: "18rem" }}>
+       <div className="card" style={{ width: "18rem" }}>
+         {imageFile && (
+      <img
+        src={URL.createObjectURL(imageFile)}
+        className="card-img-top"
+        style={{ height: "200px", objectFit: "cover" }}
+        alt="Preview"
+      />
+    )}
+      <input
+        type="file"
+        accept="image/*"
+        className="form-control"
+        onChange={(e) => {
+          const file = e.target.files?.[0] || null;
+          setImageFile(file);
+        }}
+      />
         <div className="card-header">
             <input
             className="form-control mb-2"
@@ -92,6 +138,6 @@ const CreateBlog: React.FC = () => {
       </div>
     </Container>
   )
-
+  
 }
 export default CreateBlog;

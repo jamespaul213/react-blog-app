@@ -55,6 +55,17 @@ useEffect(() => {
     {blogs.map((blog) => (
       <Col key={blog.id} md={6} lg={4} className="mb-4">
         <div className="card" style={{ width: "18rem" }}>
+            {blog.image_url && (
+            <img
+              src={blog.image_url}
+              className="card-img-center"
+              style={{
+              height: "200px",
+              objectFit: "fill",
+            }}
+            alt="Placeholder"
+            />
+          )}
             <h5 className="card-header d-flex justify-content-center">{blog.title}</h5>
         <div className="d-flex justify-content-center card-body">
             <Button
