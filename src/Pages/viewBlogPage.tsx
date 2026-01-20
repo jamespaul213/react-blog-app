@@ -34,27 +34,26 @@ const ViewBlog: React.FC = () => {
     }
      fetchBlog();
     },[id]);
-
-        const fetchComments = async () => {
-      if (!blog?.id){
-        return
-      };
+    
+    useEffect(() => {
+       const fetchComments = async () => {
+        if (!blog?.id) return;
 
       const { data, error } = await supabase
         .from("comments")
         .select("*")
-        .eq("blog_id", blog.id)
+        .eq("blog_id", blog?.id)
         .order("created_at", { ascending: true });
 
       if (!error && data) setComments(data);
     };
 
-    
-    useEffect(() => {
       fetchComments();
     }, [blog?.id]);
 
   const handleAddComment = async () => {
+  if (!blog) return;
+
   let imageUrl: string | null = null;
 
   if (commentImage) {
@@ -80,16 +79,27 @@ const ViewBlog: React.FC = () => {
   if (!user) return;
 
   const { error } = await supabase.from("comments").insert({
-    blog_id: blog?.id,
+    blog_id: blog.id,
     author_id: user.id,
     content: commentText,
     image_url: imageUrl,
   });
 
   if (!error) {
+     setComments((prev) => [
+      ...prev,
+      {
+        id: Date.now().toString(),   // ✅ string
+        blog_id: String(blog.id),            // ✅ string UUID
+        author_id: user.id,
+        content: commentText,
+        image_url: imageUrl,
+        created_at: new Date().toISOString(),
+      }
+    ]);
     setCommentText("");
     setCommentImage(null);
-    fetchComments(); 
+   
   }
 };
 
@@ -121,7 +131,7 @@ const ViewBlog: React.FC = () => {
                 src={blog.image_url}
                 className="card-img-top"
                 style={{ height: "200px", width: "100%", objectFit: "cover" }}
-                alt="Blog image"
+                alt="Placeholder"
               />
             )}
 
