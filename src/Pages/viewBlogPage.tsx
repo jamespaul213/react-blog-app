@@ -28,8 +28,6 @@ const ViewBlog: React.FC = () => {
             alert(error);
         }else{
             setBlogData(data);
-            console.log("BLOG IMAGE URL:", data.image_url);
-            console.log('VIEW', data);
         }
     }
      fetchBlog();
@@ -83,16 +81,18 @@ const ViewBlog: React.FC = () => {
     author_id: user.id,
     content: commentText,
     image_url: imageUrl,
+    comment_name: user.email,
   });
 
   if (!error) {
      setComments((prev) => [
       ...prev,
       {
-        id: Date.now().toString(),   // ✅ string
-        blog_id: String(blog.id),            // ✅ string UUID
+        id: Date.now().toString(),   
+        blog_id: String(blog.id),           
         author_id: user.id,
         content: commentText,
+        comment_name: user.email,
         image_url: imageUrl,
         created_at: new Date().toISOString(),
       }
@@ -160,6 +160,9 @@ const ViewBlog: React.FC = () => {
               <h6>Comments</h6>
               {comments.map((comment) => (
                 <div key={comment.id} className="border rounded p-2 mb-2">
+                  <h3 className="mb-1 text-primary fs-6">
+                    {comment.comment_name || "Anonymous"}
+                  </h3>
                   <p className="mb-1">{comment.content}</p>
 
                   {comment.image_url && (
