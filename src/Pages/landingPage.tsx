@@ -14,7 +14,7 @@ const LandingPage: React.FC = () => {
 
 useEffect(() => {
   const fetchBlogs = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    // const { data: { user } } = await supabase.auth.getUser();
 
     let query = supabase
       .from("blogs")
@@ -26,14 +26,15 @@ useEffect(() => {
       );
 
 
-    if (user) {
-      query = query.eq("author_id", user.id);
-    }
+    // if (user) {
+    //   query = query.eq("author_id", user.id);
+    // }
 
     const { data, error, count } = await query;
 
     if (!error){
     setBlogs(data || []);
+    console.log('DATA',data)
     setTotalBlogs(count || 0);
     }
   };
