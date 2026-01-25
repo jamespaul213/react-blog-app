@@ -11,8 +11,19 @@ const ViewBlog: React.FC = () => {
     const [blog, setBlogData] = useState<Blog | null>(null);
     const [comments, setComments] = useState<Comment[]>([]);
     const [commentText, setCommentText] = useState("");
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const [editText, setEditText] = useState("");
+    const [originalText, setOriginalText] = useState("");
     const [commentImage, setCommentImage] = useState<File | null>(null);
+    const [currentUser, setCurrentUser] = useState<any>(null);
     const navigate = useNavigate();
+
+      useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+    setCurrentUser(data.user);
+    });
+    }, []);
+    
 
     useEffect(() => {
     const fetchBlog = async () => {
@@ -48,7 +59,8 @@ const ViewBlog: React.FC = () => {
 
       fetchComments();
     }, [blog?.id]);
-
+    
+    
   const handleAddComment = async () => {
   if (!blog) return;
 
@@ -84,24 +96,53 @@ const ViewBlog: React.FC = () => {
     comment_name: user.email,
   });
 
-  if (!error) {
-     setComments((prev) => [
-      ...prev,
-      {
-        id: Date.now().toString(),   
-        blog_id: String(blog.id),           
-        author_id: user.id,
-        content: commentText,
-        comment_name: user.email,
-        image_url: imageUrl,
-        created_at: new Date().toISOString(),
-      }
-    ]);
+      if (!error) {
     setCommentText("");
     setCommentImage(null);
-   
-  }
-};
+
+
+    // re-fetch real comments from DB
+    const { data } = await supabase
+    .from("comments")
+    .select("*")
+    .eq("blog_id", blog.id)
+    .order("created_at", { ascending: true });
+
+
+    setComments(data || []);
+    }
+  };
+
+      const startEdit = (comment: Comment) => {
+      setEditingId(comment.id);
+      setEditText(comment.content);
+      setOriginalText(comment.content);
+      };
+
+      const cancelEdit = () => {
+      setEditingId(null);
+      setEditText(originalText);
+      };
+
+   const saveEdit = async (commentId: string, authorId: string) => {
+    if (currentUser?.id !== authorId) return;
+
+
+    const { error } = await supabase
+    .from("comments")
+    .update({ content: editText })
+    .eq("id", commentId);
+
+
+    if (!error) {
+    setComments((prev) =>
+    prev.map((c) =>
+    c.id === commentId ? { ...c, content: editText } : c
+    )
+    );
+    setEditingId(null);
+    }
+    };
 
       const handleDelete = async () => {
       if (!id) return;
@@ -118,6 +159,21 @@ const ViewBlog: React.FC = () => {
         navigate("/home");
       }
     };
+
+    const handleDeleteComment = async (commentId: string, authorId: string) => {
+      if (currentUser?.id !== authorId) return;
+
+
+      const { error } = await supabase
+      .from("comments")
+      .delete()
+      .eq("id", commentId);
+
+
+      if (!error) {
+      setComments((prev) => prev.filter((c) => c.id !== commentId));
+      }
+      };
 
 
     return (
@@ -163,7 +219,57 @@ const ViewBlog: React.FC = () => {
                   <h3 className="mb-1 text-primary fs-6">
                     {comment.comment_name || "Anonymous"}
                   </h3>
-                  <p className="mb-1">{comment.content}</p>
+
+                  {editingId === comment.id ? (
+                    <>
+                      <textarea
+                        className="form-control mb-2"
+                        value={editText}
+                        onChange={(e) => setEditText(e.target.value)}
+                      />
+
+                      <Button
+                        size="sm"
+                        variant="success"
+                        onClick={() => saveEdit(comment.id, comment.author_id)}
+                      >
+                        Save
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="ms-2"
+                        onClick={cancelEdit}
+                      >
+                        Cancel
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <p className="mb-1">{comment.content}</p>
+                    {currentUser?.id === comment.author_id && (
+                      <div className="d-flex gap-2 mt-2">
+                      <Button
+                      size="sm"
+                      variant="primary"
+                      onClick={() => startEdit(comment)}
+                      >
+                      Edit
+                      </Button>
+
+
+                      <Button
+                      size="sm"
+                      variant="danger"
+                      onClick={() => handleDeleteComment(comment.id, comment.author_id)}
+                      >
+                      Delete
+                      </Button>
+                      </div>
+                      )}
+                    </>
+                  )}
 
                   {comment.image_url && (
                     <img
@@ -179,6 +285,7 @@ const ViewBlog: React.FC = () => {
                   )}
                 </div>
               ))}
+
               <textarea
                 className="form-control mt-2"
                 placeholder="Write a comment..."
