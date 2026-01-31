@@ -14,13 +14,15 @@ const ViewBlog: React.FC = () => {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editText, setEditText] = useState("");
     const [editStatus, setEditStatus] = useState<boolean>(false);
+    const [removeImage, setRemoveImage] = useState(false);
     const [originalText, setOriginalText] = useState("");
+    const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
     const [commentImage, setCommentImage] = useState<File | null>(null);
     const [editImageFile, setEditImageFile] = useState<File | null>(null);
     const [currentUser, setCurrentUser] = useState<any>(null);
     const navigate = useNavigate();
 
-      useEffect(() => {
+    useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
     setCurrentUser(data.user);
     });
@@ -97,10 +99,9 @@ const ViewBlog: React.FC = () => {
     comment_name: user.email,
   });
 
-      if (!error) {
+    if (!error) {
     setCommentText("");
     setCommentImage(null);
-
 
     // re-fetch real comments from DB
     const { data } = await supabase
@@ -108,7 +109,6 @@ const ViewBlog: React.FC = () => {
     .select("*")
     .eq("blog_id", blog.id)
     .order("created_at", { ascending: true });
-
 
     setComments(data || []);
     }
@@ -118,34 +118,72 @@ const ViewBlog: React.FC = () => {
       setEditingId(comment.id);
       setEditText(comment.content);
       setOriginalText(comment.content);
-
+      setOriginalImageUrl(comment.image_url);
       setEditImageFile(null); 
       setEditStatus(true);
       };
 
-
       const cancelEdit = () => {
-      setEditingId(null);
-      setEditText(originalText);
-      setEditStatus(false);
 
-      setEditImageFile(null);  
+        if (!editingId) return;
+
+      // restore the original image and text in the comment object
+      setComments(prev =>
+        prev.map(c =>
+          c.id === editingId
+            ? { ...c, content: originalText, image_url: originalImageUrl }
+            : c
+        )
+      );
+
+        setEditImageFile(null);
+        setEditingId(null);
+        setEditText("");
+        setEditStatus(false);
+            
       };
 
   const saveEdit = async (commentId: string, authorId: string, oldImageUrl: string | null) => {
-  if (currentUser?.id !== authorId) return;
+    if (currentUser?.id !== authorId) return;
 
-   if (!editText.trim() && !editImageFile) {
-    alert("Comment cannot be empty");
-    return;
-  }
+    if (!editText.trim() && !editImageFile) {
+      alert("Comment cannot be empty");
+      return;
+    }
+  
+    let finalImageUrl = oldImageUrl;
+    const shouldDeleteImage = removeImage;
 
-  let finalImageUrl = oldImageUrl;
+    if (shouldDeleteImage && oldImageUrl) {
+      const oldPath = oldImageUrl.split("/comment-image/")[1];
+      await supabase.storage.from("comment-image").remove([oldPath]);
+      finalImageUrl = null;
+    }
 
   if (editImageFile) {
     if (oldImageUrl) {
-      const oldPath = oldImageUrl.split("/comment-image/")[1];
-      await supabase.storage.from("comment-image").remove([oldPath]);
+        const fileName = `comment-${commentId}-${Date.now()}`;
+  const { error: uploadError } = await supabase.storage
+    .from("comment-image")
+    .upload(fileName, editImageFile);
+  
+  if (uploadError) {
+    alert("Image upload failed");
+    return;
+  }
+
+  const { data } = supabase.storage
+    .from("comment-image")
+    .getPublicUrl(fileName);
+
+  finalImageUrl = data.publicUrl;
+
+  // Reset deletion flag
+  setComments(prev =>
+    prev.map(c =>
+      c.id === commentId ? { ...c, removeImage: false } : c
+    )
+  );
     }
 
 
@@ -191,7 +229,6 @@ const ViewBlog: React.FC = () => {
   setEditImageFile(null);
 };
 
-
       const handleDelete = async () => {
       if (!id) return;
 
@@ -225,26 +262,18 @@ const ViewBlog: React.FC = () => {
       }
       };
 
-      const handleDeleteImage = async (imageUrl: string, authorId: string) => {
-        if(currentUser.id !== authorId) return;
-
-        const { error } = await supabase.storage
-        .from("comment-image")
-        .remove([imageUrl]);
-
-        if (!error) {
-          await supabase
-          .from("comments")
-          .update({ image_url: null })
-          .eq("image_url", imageUrl);
-
-          setComments((prev) =>
-          prev.map((c) =>
-          c.image_url === imageUrl ? { ...c, image_url: null } : c
-          )
-          );
-        }
-      }
+      const handleDeleteImage = async (commentId: string) => {
+        // if(currentUser.id !== authorId) return;
+          setRemoveImage(true);     
+          // setCommentImage(null); 
+            setComments(prev =>
+        prev.map(c =>
+          c.id === commentId
+            ? { ...c, removeImage: true, image_url: null } // temporarily remove
+            : c
+        )
+        );
+      };
 
 
     return (
@@ -369,26 +398,28 @@ const ViewBlog: React.FC = () => {
               {comment.image_url != null && (
                   <div className="image-wrapper">
                   <img
-                  src={
-                    editingId === comment.id && editImageFile
-                      ? URL.createObjectURL(editImageFile)
-                      : comment.image_url || ""
-                  }
-                  className="comment-image"
-                  alt="Comment"
-                />
-                  {currentUser?.id === comment.author_id && editStatus === true && (
-                    <button
-                    className="delete-image-btn"
-                    onClick={() => {
-                    if (comment.image_url != null) {
-                    handleDeleteImage(comment.image_url, comment.author_id);
-                    }
-                    }}
-                    >
-                    ✕
-                    </button>
-                  )}
+                      src={
+                        editingId === comment.id
+                          ? editImageFile
+                            ? URL.createObjectURL(editImageFile)
+                            : comment.image_url || ""
+                          : comment.image_url || ""
+                      }
+                      className="comment-image"
+                      alt="Comment"
+                    />
+                    {currentUser?.id === comment.author_id && editStatus === true && (
+                      <button
+                      className="delete-image-btn"
+                      onClick={() => {
+                      if (comment.image_url != null) {
+                      handleDeleteImage(comment.id);
+                      }
+                      }}
+                      >
+                      ✕
+                      </button>
+                    )}
                   <div>
                   
                       {currentUser?.id === comment.author_id && editStatus === false && (
