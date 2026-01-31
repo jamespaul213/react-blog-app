@@ -29,10 +29,9 @@ const ViewBlog: React.FC = () => {
     }, []);
     
 
-    useEffect(() => {
+    useEffect(() => {     
+    if (!id) return;
     const fetchBlog = async () => {
-        if (!id) return;
-
         const {data,error} = await supabase
         .from("blogs")
         .select("*")
@@ -40,9 +39,9 @@ const ViewBlog: React.FC = () => {
         .single();
 
         if(error){
-            alert(error);
+          alert(error);
         }else{
-            setBlogData(data);
+          setBlogData(data);
         }
     }
      fetchBlog();
@@ -295,7 +294,7 @@ const ViewBlog: React.FC = () => {
             <div className="card-body">
               <p className="card-text">{blog.content}</p>
 
-              {/* Edit/Delete Buttons */}
+              {currentUser?.id === blog.author_id && (
               <div className="d-flex justify-content-center mt-2">
                 <Button
                   variant="primary"
@@ -311,6 +310,7 @@ const ViewBlog: React.FC = () => {
                   Delete
                 </Button>
               </div>
+              )}
             </div>
             <div className="card-footer mt-2">
               <h6>Comments</h6>
